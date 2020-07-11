@@ -1,0 +1,124 @@
+service: todos-app
+app: todos-app
+org: rudrarkabhattacharyya
+frameworkVersion: ">=1.1.0 <2.0.0"
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+
+
+provider:
+  name: aws
+  runtime: python3.6
+  stage: dev
+  region: ap-south-1
+  environment:
+    MONGO_DB_USER: ${env:MONGO_DB_USER}
+    MONGO_DB_PASS: ${env:MONGO_DB_PASS}
+    MONGO_DB_NAME: ${env:MONGO_DB_NAME}
+    MONGO_DB_URL: ${env:MONGO_DB_URL}
+    USER_COLLECTION: ${env:USER_COLLECTION}
+    TODO_COLLECTION: ${env:TODO_COLLECTION}
+    SECRET: ${env:SECRET}
+  iamManagedPolicies:
+    - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+
+functions:
+  register:
+    handler: user/register.register
+    events:
+      - http:
+          path: user/signup
+          method: post
+          cors: true
+  login:
+    handler: user/login.login
+    events:
+      - http:
+          path: user/login
+          method: post
+          cors: true
+  verify-token:
+    handler: user/verify_token.verify_token
+    events:
+      - http:
+          path: user/verify_token
+          method: post
+          cors:
+            origin: '*' # <-- Specify allowed origin
+            headers: # <-- Specify allowed headers
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - x-auth-token
+  create-todo:
+    handler: todo/create_todo.create_todo
+    events:
+      - http:
+          path: todos
+          method: post
+          cors:
+            origin: '*' # <-- Specify allowed origin
+            headers: # <-- Specify allowed headers
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - x-auth-token
+  get-todo-list:
+    handler: todo/get_todo_list.get_todo_list
+    events:
+      - http:
+          path: todos
+          method: get
+          cors:
+            origin: '*' # <-- Specify allowed origin
+            headers: # <-- Specify allowed headers
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - x-auth-token
+  update-todo:
+    handler: todo/update_todo.update_todo
+    events:
+      - http:
+          path: todos/{id}
+          method: patch
+          cors:
+            origin: '*' # <-- Specify allowed origin
+            headers: # <-- Specify allowed headers
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - x-auth-token
+  delete-todo:
+    handler: todo/delete_todo.delete_todo
+    events:
+      - http:
+          path: todos/{id}
+          method: delete
+          cors:
+            origin: '*' # <-- Specify allowed origin
+            headers: # <-- Specify allowed headers
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - x-auth-token
